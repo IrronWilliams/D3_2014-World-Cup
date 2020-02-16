@@ -10,35 +10,36 @@
 <script source='colorbrewer.js'></script>
 
 <body>
+<p>Interactivity with Buttons. User buttons and circles adjust... </p>
 <div id='viz'>
     <svg style='width:500px;height:500px;border:1px lightgray solid'></svg>
 </div>
 <div id='controls'></div>
 
-    
+   
     <script>
     /*d3.csv() loads file, calls function and passes argument. process parses the data and creates an array 
-    of objects with key:value relationships. the column names are values and data in rows are 
-    value.  the number of objects is based upon the number of rows in csv file.  
+    of objects with key:value relationships. the column names are keys and data in rows are 
+    values.  the number of objects is based upon the number of rows in csv file.  
     Object0: {team: "Germany", region: "UEFA", win: "7", loss: "6", draw: "0", …}
     Object1: {team: "Argentina", region: "CONMEBOL", win: "7", loss: "5", draw: "1", …}
     Object7: {team: "United States", region: "CONCACAF", win: "4", loss: "1", draw: "2", …}
     */
-    d3.csv('worldcup.csv', data => {overallTeamViz(data)}) 
+      d3.csv('worldcup.csv', data => {overallTeamViz(data)}) 
     
     /* Statements create circles and labels from the worldcup.csv representing 2014 World Cup statistics.
        whenever g is used, need to set the position using the transform attribute*/
-    function overallTeamViz(incomingData) {
+      function overallTeamViz(incomingData) {
         d3.select('svg')
-          .append('g')  //appends a <g> to the svg canvas to move g and center its contents more easily 
-            .attr('id', 'teamsG')
-            .attr('transform', 'translate(50,300)') //moves circles along the x and y axis  
-          .selectAll('g')
-          .data(incomingData)
-          .enter()
-          .append('g')
-            .attr('class', 'overallG')
-            .attr('transform', (d, i) =>`translate(${(i * 50)}, 0)`) //creates a <g> for each team to add labels/other elements. when looping thru dataset, i pushes each subsequent circle to the right
+        .append('g')  //appends a <g> to the svg canvas to move g and center its contents more easily 
+          .attr('id', 'teamsG')
+          .attr('transform', 'translate(50,300)') //moves circles along the x and y axis  
+        .selectAll('g')
+        .data(incomingData)
+        .enter()
+        .append('g')
+          .attr('class', 'overallG')
+          .attr('transform', (d, i) =>`translate(${(i * 50)}, 0)`) //creates a <g> for each team to add labels/other elements. when looping thru dataset, i pushes each subsequent circle to the right
 
         let teamG = d3.selectAll('g.overallG') // assigns the selection to a variable to refer to it/avoid retyping d3.SelectAll()
         
@@ -83,19 +84,47 @@
           d3.selectAll('g.overallG').select('circle') //applies updates to the g.overallG class and applies the scaled radius to r
             .attr('r', d => radiusScale(d[datapoint]))
         }
+     } //closing bracket for main funtion   
+
+
+
+     /*
+        
+        .on() ties events to any object, which adds interactivity to the circles by having them indicate whether teams are in the same 
+        FIFA region. Using d as variable. As a result, changed the inline function variable to p, so that it wouldn’t conflict. 
+        Here you see an “ifsie,” which is an inline if statement that compares the region of each element in the selection to the region 
+        of the element that user moused over. 
+        
+        teamG.on("mouseover", highlightRegion)
+        function highlightRegion(d,i) {
+          d3.select(this).select("text").classed("active", true).attr("y", 10)
+          
+          d3.selectAll("g.overallG").select("circle").each(function (p) {
+            p.region == d.region ?
+              d3.select(this).classed("active",true) 
+              d3.select(this).classed("inactive",true)
+          })
+        }
+   */   
       
-      
-      
-      
-      
-      
-      
-      
-      } //closing bracket for main funtion
-    
-    
-    
-    
+   
     </script>
+
+    
+
+
+
+      
+      
+      
+      
+      
+      
+     
+    
+    
+    
+    
+    
 </body>
 </html>

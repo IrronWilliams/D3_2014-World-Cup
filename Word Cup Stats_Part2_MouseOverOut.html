@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <title>MouseOver MouseOut</title>
+    <meta charset='UTF-8'>
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+    <link type='text/css' rel='stylesheet' href='d3ia.css'/>
+</head>
+
+<script source='colorbrewer.js'></script>
+
+<body>
+<h4>Additional Interactivity. Buttons, MouseOver and MouseOut<h4>
+<p>When user hovers over circles, teams in the same region will be assigned same color while those not in region will be assigned
+  a differnt color. Circles are restored to original color when user moves away from circles.</p>
+<div id='viz'>
+    <svg style='width:500px;height:500px;border:1px lightgray solid'></svg>
+</div>
+<div id='controls'></div>
+
+    <script>
+   
+      d3.csv('worldcup.csv', data => {overallTeamViz(data)}) 
+    
+      function overallTeamViz(incomingData) {
+        d3.select('svg')
+        .append('g')  
+          .attr('id', 'teamsG')
+          .attr('transform', 'translate(50,300)') 
+        .selectAll('g')
+        .data(incomingData)
+        .enter()
+        .append('g')
+          .attr('class', 'overallG')
+          .attr('transform', (d, i) =>`translate(${(i * 50)}, 0)`) 
+
+        let teamG = d3.selectAll('g.overallG') 
+        
+        teamG
+          .append('circle') 
+            .attr('r', 20)
+        
+        teamG
+          .append('text')
+            .style('text-anchor', 'middle')
+            .attr('y', 30)
+            .text(d => d.team) 
+        
+      /*Mouseover and Mouseout added here.          
+        .on() ties events to any object, which adds interactivity to the circles by having them indicate whether teams are in the same 
+        FIFA region. Using d as variable. Because using variable d, changed the inline function variable to p, so that it wouldn’t conflict. 
+        Here you see an “ifsie,” which is an inline if statement that compares the region of each element in the selection to the region 
+        of the element that user moused over. When mouseover, highlightRegion function selects elements with the same region attribute 
+        and colors them, while those that are not in the same region gets another color. 
+        Restoring the circles to their initial color on mouseout; function declared inline with the .on function.  */
+        
+        teamG.on("mouseover", highlightRegion)
+                  
+        teamG.on("mouseout", function() {
+          d3.selectAll("g.overallG")
+            .select("circle").classed("inactive", false).classed("active", false)
+        })
+        
+        function highlightRegion(d) {
+          d3.selectAll("g.overallG").select("circle")
+              .attr("class", p => p.region === d.region ? "active" : "inactive");
+        }
+
+        let dataKeys = Object.keys(incomingData[0]) 
+          .filter(d => d !== 'team' && d !== 'region') 
+        
+        d3.select('#controls').selectAll('button.teams') 
+          .data(dataKeys).enter() 
+          .append('button')  
+            .on('click', buttonClick) 
+            .html(d => d)
+             
+        function buttonClick(datapoint) { 
+          let maxValue = d3.max(incomingData, d => parseFloat(d[datapoint])) 
+          
+          let radiusScale = d3.scaleLinear()  
+            .domain([ 0, maxValue ]).range([ 2, 20 ])
+          
+          d3.selectAll('g.overallG').select('circle') 
+            .attr('r', d => radiusScale(d[datapoint]))
+        }
+      }
+    </script>
+
+
+    
+</body>
+</html>
