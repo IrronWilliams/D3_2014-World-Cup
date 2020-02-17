@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <title>2014 World Cup Summary</title>
+    <meta charset='UTF-8'>
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+    <link type='text/css' rel='stylesheet' href='d3ia.css'/>
+</head>
+
+<script source='colorbrewer.js'></script>
+
+<body>
+<div id='viz'>
+    <svg style='width:500px;height:500px;border:1px lightgray solid'></svg>
+</div>
+<div id='controls'></div>
+
+    <script>
+   
+      d3.csv('worldcup.csv', data => {overallTeamViz(data)})
+
+      /* Statements build a modal dialog box that will hold the numbers associated with the teams. A modal dialog is another way of 
+      referring to that “floating” area that typically only shows up when you click an element. The html for the table is in the 
+      modo.html file. Will need to add a click listener to populate dialog box. */
+      d3.text('modal.html', data => {
+        d3.select('body').append('div').attr('id', 'modal').html(data) //function to create a div with ID 'modal' into which we add the loaded HTML code using the .html() function
+      })
+
+      /* Load svg icon for football. Football floats in top-left hand corner of canvas */
+      d3.html('icon.svg', loadSVG)
+      
+        function loadSVG(svgData) {
+          while(!d3.select(svgData).selectAll('path').empty()) {
+            d3.select('svg').node().appendChild(
+              d3.select(svgData).select('path').node())
+          }
+          d3.selectAll('path').attr('transform', 'translate(50,50)')
+        }
+
+      function overallTeamViz(incomingData) {
+        d3.select('svg')
+        .append('g')  
+          .attr('id', 'teamsG')
+          .attr('transform', 'translate(50,300)') 
+        .selectAll('g')
+        .data(incomingData)
+        .enter()
+        .append('g')
+          .attr('class', 'overallG')
+          .attr('transform', (d, i) =>`translate(${(i * 50)}, 0)`) 
+
+        let teamG = d3.selectAll('g.overallG') 
+
+         /*The use of transitions allows for delay of change through the .delay() function. Like the .duration() function, .delay() is set 
+         with the wait in milliseconds before implementing the change. 
+
+         Delays can also draw attention to visual elements when they first appear. By making the elements pulse when they arrive onscreen,
+         you let users know that these are dynamic objects and tempt users to click or otherwise interact with them. Delays, like duration, 
+         can be dynamically set based on the bound data for each element. 
+         
+         Transition chaining sets multiple transitions one after another, and each is activated after the last transition has finished.
+         Approach is used to cause the individual circles to grow to an exaggerated size and then shrinl to their final size in the order
+         in which they appear in the bound dataset. 
+
+         The statements causes a pulse because they uses transition chaining to set one transition, followed by a second after the 
+         completion of the first. Begin by drawing the circles with a radius of 0, so they’re invisible. Each element has a delay set 
+         to its array position i times 0.1 seconds (100 ms), after which the transition causes the circle to grow to a radius of 40 px. 
+         After each circle grows to that size, a second transition shrinks the circles to 20 px. 
+         The effect causes the circles to pulse sequentially. */        
+        teamG
+          .append('circle').attr('r', 0)
+          .transition()
+            .delay((d,i) => i * 100)
+            .duration(500)
+            .attr('r', 40)
+          .transition()
+            .duration(500)
+            .attr('r', 20)
+
+        teamG
+          .append('text')
+            .style('text-anchor', 'middle')
+            .attr('y', 30)
+            .text(d => d.team) 
+        
+      /*Mouseover and Mouseout removed from program.          
+        Following functions/variables removed:
+        highlightRegion, dataKeys, buttons buttonClick,  */
+
+        d3.text('resources/modal.html', function(data) {
+          d3.select('body').append('div').attr('id', 'modal').html(data);
+        })
+       
+        /*Table for modal dialog box has been created. 
+        Click listener and associated function populates the modal dialog with the respective data/stats when cirlce is clicked.
+        Because using variable d, changed the inline function variable to p, so that it wouldn’t conflict*/
+        teamG.on('click', teamClick) 
+        function teamClick (d) {
+          d3.selectAll('td.data').data(d3.values(d)) //td.data references the modal.html file
+              .html(p => p) //equivalent to .html(function(p) {return p})
+        }
+
+        /*PNG flags of each national team are stored in folder/directory called 'images'.
+       
+        To add images to visualization, select the <g> elements that have the team data already bound to them, and add an SVG image. 
+
+        To make the images show up successfully, use insert() instead of append() because that provides capacity to tell D3 to insert 
+        the images before the text elements. This keeps the labels from being drawn behind the newly added images. 
+        
+        Because each image name is the same as the team name of each data point, can use an inline function to point to that value, 
+        combined with strings for the directory and file extension. Also need to define the height and width of the images because 
+        SVG images, by default, have no setting for height and width and won’t display until these are set. Also need to manually 
+        center SVG images.  The x and y attributes are set to a negative value of one-half the respective height and width, which 
+        centers the images in their respective circles. 
+        */
+        d3.selectAll('g.overallG').insert('image', 'text')
+          .attr('xlink:href', d => '/images/' + d.team + '.png')
+          .attr('width', '45px').attr('height', '20px').attr('x', '-22')
+          .attr('y', '-10')
+      
+      } //closing bracket for function overallTeamViz
+
+      
+    </script>
+
+
+    
+</body>
+</html>
