@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Friends To Salary Correlation</title>
+    <meta charset="UTF-8">
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+</head>    
+
+<body>
+<p>Scatterplot with default styles for an axis display.</p>   
+    <div id="viz">
+      <svg style="width:500px;height:500px;" ></svg>
+    </div>
+    
+    <script>
+      let scatterData = [
+        {friends: 5, salary: 22000},
+        {friends: 3, salary: 18000},
+        {friends: 10, salary: 88000},
+        {friends: 0, salary: 180000},
+        {friends: 27, salary: 56000},
+        {friends: 8, salary: 74000}
+      ]
+      
+      /*Part2: Buidling scales to make it fit better on SVG canvas. The d3.extent() function is used to return the minimum and maximum 
+      value in an array from the given array using natural order. Results in a scatterplot with points representing people arranged 
+      by number of friends along the y-axis and amount of salary along the x-axis
+      */
+      let xExtent = d3.extent(scatterData, d => d.salary)
+      let yExtent = d3.extent(scatterData, d => d.friends)
+      let xScale = d3.scaleLinear().domain(xExtent).range([0,500])
+      let yScale = d3.scaleLinear().domain(yExtent).range([0,500])
+
+      /*Part1: Represents data graphically using circles. Designating d.friends for the cy position, get circles placed with their depth
+      based on the value of the friends attribute. Circles placed lower in the chart represent people in dataset who have more friends.
+      scatterData[4] = 27, has the highest value and thus is closest to the bottom. Circles are arranged from left to right. */
+      d3.select("svg").selectAll("circle")  
+        .data(scatterData).enter()
+        .append("circle")
+          .attr("r", 5)
+          .attr("cx", (d,i) => i * 10) //*10 is used to create space between circles 
+          .attr("cy", d => d.friends)
+    
+    /*Part3: Expressing what the position of the elements means by creating axis labels. Using d3 axisRight and axisBottom
+    methods from a selection on a <g> element to draw grphical elements. Axis component contain g.tick, line, text and path.domain */
+      let yAxis = d3.axisRight().scale(yScale);
+      d3.select("svg").append("g").attr("id", "yAxisG").call(yAxis)
+      
+      let xAxis = d3.axisBottom().scale(xScale);
+      d3.select("svg").append("g").attr("id", "xAxisG").call(xAxis)
+
+
+
+    </script>
+
+
+
+
+  
+</body>
+</html>
